@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using BLLCore;
+using ModelsCore;
 
 namespace Menu
 {
     class Program
     {
+        private static VideoBLL bll = new VideoBLL();
+
         private static string[] options = {
 
                 "Exit",
@@ -15,8 +19,7 @@ namespace Menu
             };
         
         static void Main(string[] args)
-        {
-            
+        { 
             Menu(options);
             
         }
@@ -77,35 +80,55 @@ namespace Menu
         private static void VideoList()
         {
             Console.Clear();
-            Console.WriteLine("You chose to see the list of videos! " +
-                "\nList of videos: \n");
-
-            List<string> videos = new List<string>{
-                "Funny dog haha, (02/21/20), It's a funny dog",
-                "Funny cat haha, (05/24/20), It's a funny cat",
-                "Funny mouse haha, (07/22/20), It's a funny mouse",
-
-            };
-
-            foreach (string video in videos)
+            
+            List<Video> videos = bll.GetVideos();
+            if (videos.Count == 0)
             {
-                Console.WriteLine(video);
+                Console.WriteLine("You chose to see the list of videos! " +
+                    "\nYou haven't added any videos yet!");
+
+                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "menu":
+                        Console.Clear();
+                        Menu(options);
+                        break;
+                    case "exit":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
             }
-
-            Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
-
-            switch (Console.ReadLine().ToLower())
+            else
             {
-                case "menu":
-                    Console.Clear();
-                    Menu(options);
-                    break;
-                case "exit":
-                    Environment.Exit(0);
-                    break;
-                default:
-                    Environment.Exit(0);
-                    break;
+                Console.WriteLine("You chose to see the list of videos! \n" +
+                    "\nList of videos: " +
+                    "\n(Title, Date, Storyline) \n");
+
+                foreach (Video video in videos)
+                {
+                    Console.WriteLine($"{video.Title}, {video.Date.ToShortDateString()}, {video.StoryLine}");
+                }
+
+                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "menu":
+                        Console.Clear();
+                        Menu(options);
+                        break;
+                    case "exit":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
             }
         }
         #endregion
@@ -115,7 +138,8 @@ namespace Menu
         {
             Console.Clear();
             Console.WriteLine("You chose to delete a video! " +
-                "\nInput the name of the video you want to delete: \n");
+                "\nInput the name of the video you want to delete: " +
+                "\nTo see the list of videos, input L");
 
             string name = Console.ReadLine().Trim();
             Char[] array = name.ToCharArray();
@@ -142,6 +166,14 @@ namespace Menu
                     }
 
                 }
+            }
+
+            if(name.ToLower().Equals("l"))
+            {
+                foreach (Video video in bll.GetVideos())
+                {
+                    Console.WriteLine($"{video.Title}, {video.Date.ToShortDateString()}, {video.StoryLine}");
+                }  
             }
 
             Console.WriteLine($"\nAre you sure you want to delete {name}?" +
@@ -228,37 +260,64 @@ namespace Menu
                 }
             }
 
-            Console.WriteLine("\nInput date of release: (MM/dd/yy)");
+            Console.WriteLine("\nInput date of release: (dd/MM/yyyy)");
             string date = Console.ReadLine();
+            DateTime dt = Convert.ToDateTime(date);
 
             Console.WriteLine("\nInput storyline:");
             string storyLine = Console.ReadLine();
 
-            Console.WriteLine("\n----------------------------------------" +
+            try
+            {
+                bll.CreateVideo(name, dt, storyLine);
+
+                Console.WriteLine("\n----------------------------------------" +
                 "\nVideo Created!" +
                 "\nYou input:");
 
-            Console.WriteLine($"\nName: {name}" +
-                $"\nDate of release: {date}" +
-                $"\nStoryline: {storyLine}");
+                Console.WriteLine($"\nName: {name}" +
+                    $"\nDate of release: {date}" +
+                    $"\nStoryline: {storyLine}");
 
-            
-            Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
-                
-            switch (Console.ReadLine().ToLower())
-            {
-                case "menu":
-                    Console.Clear();
-                    Menu(options);
-                    break;
-                case "exit":
-                    Environment.Exit(0);
-                    break;
-                default:
-                    Environment.Exit(0);
-                    break;
+                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "menu":
+                        Console.Clear();
+                        Menu(options);
+                        break;
+                    case "exit":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
             }
-            
+            catch(Exception ex)
+            {
+                Console.WriteLine("\n----------------------------------------" +
+                        "\nVideo Creation Failed!" +
+                        "\nWould you like to try again?" +
+                        "\nYes/No");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "yes":
+                        Console.Clear();
+                        CreateVideo();
+                        break;
+                    case "no":
+                        Menu(options);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
+
+                Console.WriteLine(ex.Message);
+            }
 
         }
         #endregion

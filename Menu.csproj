@@ -5,4 +5,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BLLCore\BLLCore.csproj" />
+    <ProjectReference Include="..\ModelsCore\ModelsCore.csproj" />
+  </ItemGroup>
+
 </Project>

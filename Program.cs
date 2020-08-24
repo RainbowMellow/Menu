@@ -72,7 +72,87 @@ namespace Menu
         #region Update
         private static void UpdateVideo()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("You chose to update a video!" +
+                "\nPlease write the name of the video you want to update:");
+
+            string title = Console.ReadLine().Trim();
+
+            Char[] array = title.ToCharArray();
+            foreach (Char letter in array)
+            {
+                if (!Char.IsLetter(letter))
+                {
+                    Console.WriteLine("\nPlease input a name without special characters or numbers." +
+                       "\nWould you like to try again?" +
+                       "\nYes/No");
+
+                    switch (Console.ReadLine().ToLower())
+                    {
+                        case "yes":
+                            Console.Clear();
+                            UpdateVideo();
+                            break;
+                        case "no":
+                            Menu(options);
+                            break;
+                        default:
+                            Environment.Exit(0);
+                            break;
+                    }
+
+                }
+            }
+
+            Video vid = bll.GetVideo(title);
+            Console.WriteLine($"\nThe title of the video was {title} \nWhat would you like to change it to?");
+            string name = Console.ReadLine().Trim();
+
+            Console.WriteLine($"\nThe date of the video was {vid.Date} \nWhat would you like to change it to?");
+            DateTime dt = Convert.ToDateTime(Console.ReadLine().Trim());
+
+            Console.WriteLine($"\nThe storyline of the video was {vid.StoryLine} \nWhat would you like to change it to?");
+            string storyLine = Console.ReadLine().Trim();
+
+            try
+            {
+                bll.UpdateVideo(name, dt, storyLine);
+                Console.WriteLine("\nThe video was updated!");
+                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "menu":
+                        Console.Clear();
+                        Menu(options);
+                        break;
+                    case "exit":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
+            }
+            catch
+            {
+                Console.WriteLine("The video could not be updated!");
+                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "menu":
+                        Console.Clear();
+                        Menu(options);
+                        break;
+                    case "exit":
+                        Environment.Exit(0);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
+            }
+
         }
         #endregion
 
@@ -105,30 +185,93 @@ namespace Menu
             }
             else
             {
-                Console.WriteLine("You chose to see the list of videos! \n" +
-                    "\nList of videos: " +
-                    "\n(Title, Date, Storyline) \n");
+                Console.WriteLine("\nWould you like to see one video, or a list or all videos?" +
+                    "\n1: Search for video" +
+                    "\n2: List of all videos");
 
-                foreach (Video video in videos)
+                switch (int.Parse(Console.ReadLine().Trim()))
                 {
-                    Console.WriteLine($"{video.Title}, {video.Date.ToShortDateString()}, {video.StoryLine}");
+                    case 1:
+                        Console.WriteLine("Input the title of the video:");
+                        
+                        string title = Console.ReadLine().Trim();
+            
+                        Char[] array = title.ToCharArray();
+                        foreach (Char letter in array)
+                        {
+                            if (!Char.IsLetter(letter))
+                            {
+                                Console.WriteLine("\nPlease input a name without special characters or numbers." +
+                                   "\nWould you like to try again?" +
+                                   "\nYes/No");
+
+                                switch (Console.ReadLine().ToLower())
+                                {
+                                    case "yes":
+                                        Console.Clear();
+                                        VideoList();
+                                        break;
+                                    case "no":
+                                        Menu(options);
+                                        break;
+                                    default:
+                                        Environment.Exit(0);
+                                        break;
+                                }
+
+                            }
+                        }
+                        Video vid = bll.GetVideo(title);
+                        Console.WriteLine($"\nInformation about {title}:");
+                        Console.WriteLine($"{vid.Title}, {vid.Date.ToShortDateString()}, {vid.StoryLine}");
+                        
+                        Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                        switch (Console.ReadLine().ToLower())
+                        {
+                            case "menu":
+                                Console.Clear();
+                                Menu(options);
+                                break;
+                            case "exit":
+                                Environment.Exit(0);
+                                break;
+                            default:
+                                Environment.Exit(0);
+                                break;
+                        }
+
+                        break;
+                    case 2:
+                        Console.WriteLine("You chose to see the list of videos! \n" +
+                   "\nList of videos: " +
+                   "\n(Title, Date, Storyline) \n");
+
+                        foreach (Video video in bll.GetVideos())
+                        {
+                            Console.WriteLine($"{video.Title}, {video.Date.ToShortDateString()}, {video.StoryLine}");
+                        }
+
+                        Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
+
+                        switch (Console.ReadLine().ToLower())
+                        {
+                            case "menu":
+                                Console.Clear();
+                                Menu(options);
+                                break;
+                            case "exit":
+                                Environment.Exit(0);
+                                break;
+                            default:
+                                Environment.Exit(0);
+                                break;
+                        }
+                        break;
                 }
 
-                Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
 
-                switch (Console.ReadLine().ToLower())
-                {
-                    case "menu":
-                        Console.Clear();
-                        Menu(options);
-                        break;
-                    case "exit":
-                        Environment.Exit(0);
-                        break;
-                    default:
-                        Environment.Exit(0);
-                        break;
-                }
+               
             }
         }
         #endregion
@@ -136,7 +279,6 @@ namespace Menu
         #region Delete
         private static void DeleteVideo()
         {
-            Console.Clear();
             Console.WriteLine("You chose to delete a video! " +
                 "\nInput the name of the video you want to delete: " +
                 "\nTo see the list of videos, input L");
@@ -170,10 +312,29 @@ namespace Menu
 
             if(name.ToLower().Equals("l"))
             {
+                Console.WriteLine("\nList of videos:\n");
                 foreach (Video video in bll.GetVideos())
                 {
                     Console.WriteLine($"{video.Title}, {video.Date.ToShortDateString()}, {video.StoryLine}");
-                }  
+                }
+
+                Console.WriteLine("\nWould you like to go back?" +
+                        "\nYes/No"); ;
+
+                switch (Console.ReadLine().ToLower())
+                {
+                    case "yes":
+                        Console.Clear();
+                        DeleteVideo();
+                        break;
+                    case "no":
+                        Menu(options);
+                        break;
+                    default:
+                        Environment.Exit(0);
+                        break;
+                }
+
             }
 
             Console.WriteLine($"\nAre you sure you want to delete {name}?" +
@@ -182,7 +343,15 @@ namespace Menu
             switch (Console.ReadLine().ToLower())
             {
                 case "yes":
-                    Console.WriteLine("\nThe video was deleted!");
+                    try 
+                    {
+                        bll.DeleteVideo(name);
+                        Console.WriteLine("\nThe video was deleted!");
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine("\nThe video could not be deleted!");
+                    }
                     Console.WriteLine("\nWould you like to go back to the menu or exit? \nMenu/Exit");
 
                     switch (Console.ReadLine().ToLower())
